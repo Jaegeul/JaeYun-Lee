@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Board">
+	
+	<!-- 용병 모집 게시글 저장 -->
+	<insert id="insert_regi">
+  		insert into recruit (recruit_no, stadium_name, title, recruit_content, mem_id, stadium_match_no, regdate, match_level) 
+  		values (recruit_no_seq.nextval, #{stadium_name,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{recruit_content,jdbcType=VARCHAR}, #{mem_id,jdbcType=VARCHAR},
+  		#{stadium_match_no,jdbcType=VARCHAR}, sysdate, #{match_level,jdbcType=VARCHAR})
+	</insert>
+
+	<!-- 용병 모집 목록 -->
+	<select id="get_list" resultType="board">
+		select a.recruit_no, a.stadium_name, a.title, a.recruit_content, a.mem_id ,a.regdate, a.match_level, b.stadium_match_no,
+		 b.match_date, b.price, b.start_time, b.end_time, c.address from recruit a, stadium_match b, stadium c 
+		 where a.stadium_match_no = b.stadium_match_no and b.stadium_name = c.stadium_name order by recruit_no desc
+	</select>
+	
+	<!-- 용병 모집 필터링-->
+	<select id="getRecruitList_region" resultType="board">
+		select a.recruit_no, a.stadium_name, a.title, a.recruit_content, a.mem_id ,a.regdate, a.match_level, b.stadium_match_no,
+		 b.match_date, b.price, b.start_time, b.end_time, c.address from recruit a, stadium_match b, stadium c 
+		 where a.stadium_match_no = b.stadium_match_no and b.stadium_name = c.stadium_name and c.city like #{region} order by recruit_no desc
+	</select>
+
+	<!-- 게시글 보기 -->
+	<select id="get_cont" resultType="board">
+		select a.recruit_no, a.stadium_name, a.title, a.recruit_content, a.mem_id ,a.regdate, a.match_level, b.stadium_match_no, b.match_date,
+		b.price, b.start_time, b.end_time, c.address from recruit a, stadium_match b, stadium c where a.stadium_match_no = b.stadium_match_no 
+		and b.stadium_name = c.stadium_name and a.recruit_no=#{recruit_no}
+	</select>
+	
+	<!-- 예약한 구장 확인 -->
+	<select id="get_match" resultType="board">
+		select * from stadium_match where mem_id=#{mem_id,jdbcType=VARCHAR} order by stadium_name,match_date,start_time
+	</select>
+	
+	<!-- 글보기에서 내 아이디 값 확인 -->
+	<select id="get_id" resultType="board">
+	  	select * from recruit where recruit_no=#{recruit_no,jdbcType=VARCHAR} and mem_id=#{mem_id,jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 글보기 수정 -->
+	<select id="get_regi" resultType="board">
+		select * from recruit where recruit_no=#{recruit_no}
+	</select>
+	
+	<!-- 글작성 매치 중복확인 -->
+	<select id="check_over" resultType="board">
+		select * from recruit where stadium_match_no = #{stadium_match_no}
+	</select>
+	
+	<!-- 글수정 완료 -->
+	<update id="edit">
+		update recruit set stadium_name=#{stadium_name}, title=#{title}, recruit_content=#{recruit_content},
+		stadium_match_no=#{stadium_match_no}, match_level=#{match_level} where recruit_no=#{recruit_no} and mem_id=#{mem_id,jdbcType=VARCHAR}
+	</update>
+	
+	<!-- 글수정에서 아이디 확인 -->
+	<select id="id_ck" resultType="board">
+		select * from recruit where recruit_no=#{recruit_no} and mem_id=#{mem_id,jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 글쓰기에서 구장이름 확인 -->
+	<select id="get_stadium" resultType="board">
+		select stadium_name from stadium 
+	</select>
+	
+	<!-- 내가 예약한 구장 보기 -->
+	<select id="get_info" resultType="board">
+		select * from stadium_match where stadium_name=#{stadium_name,jdbcType=VARCHAR} and mem_id=#{mem_id}
+	</select>
+	
+	<!-- 글삭제 -->
+	<delete id="del_recruit">
+		delete from recruit where recruit_no=#{recruit_no} and mem_id=#{mem_id}
+	</delete>
+	
+	<!-- 스타디움 타임 확인 -->
+	<select id="get_stadiumtime" resultType="stadium_match">
+		select * from stadium_match where stadium_match_no = #{stadium_match_no}
+	</select>
+	
+	<!-- 블랙리스트 목록 -->
+	<select id="get_black" resultType="black_list">
+		select * from black_list order by black_list_no desc
+	</select>
+	
+	<!-- 블랙리스트 저장 -->
+	<insert id="black_in">
+		insert into black_list values(black_list_no_seq.nextval,#{black_list_title},#{black_list_content},#{mem_id},sysdate) 
+	</insert>
+	
+	<!-- 블랙리스트 내용보기 -->
+	<select id="getBlack_cont" resultType="black_list">
+		select * from black_list where black_list_no=#{no}
+	</select>
+	
+	<!-- 블랙리스트에서 아이디 확인 -->
+	<select id="get_black_id" resultType="black_list">
+		select * from black_list where black_list_no=#{black_list_no} and mem_id=#{mem_id}
+	</select>
+	
+	<!-- 블랙리스트 글수정 -->
+	<update id="edit_black">
+		update black_list set black_list_title=#{black_list_title}, black_list_content=#{black_list_content},
+		regdate=sysdate where black_list_no=#{black_list_no} and mem_id=#{mem_id}
+	</update>
+	
+	<!-- 블랙리스트 삭제 -->
+	<delete id="del_black">
+		delete from black_list where black_list_no=#{black_list_no} and mem_id=#{mem_id}
+	</delete>
+</mapper>
