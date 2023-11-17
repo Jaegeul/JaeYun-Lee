@@ -32,6 +32,11 @@
 		and b.stadium_name = c.stadium_name and a.recruit_no=#{recruit_no}
 	</select>
 	
+	<!-- 게시글에서 쿼리스트링 이동 게시글 번호 확인 -->
+	<select id="find_no" resultType="board">
+		select * from recruit where recruit_no=#{recruit_no}
+	</select>
+	
 	<!-- 예약한 구장 확인 -->
 	<select id="get_match" resultType="board">
 		select * from stadium_match where mem_id=#{mem_id,jdbcType=VARCHAR} order by stadium_name,match_date,start_time
@@ -82,6 +87,27 @@
 	<select id="get_stadiumtime" resultType="stadium_match">
 		select * from stadium_match where stadium_match_no = #{stadium_match_no}
 	</select>
+	
+	<!-- 댓글 리스트 가져오기 -->
+	<select id="reply_list" resultType="reply">
+		select * from recruit_reply where recruit_no=#{recruit_no} order by regi_date asc
+	</select>
+	
+	<!-- 댓글수 증가 -->
+<!-- 	<update id="reply_no_up"> -->
+<!-- 		update recruit_reply set reply_class=reply_class+1 where reply_no=#{reply_no} -->
+<!-- 	</update> -->
+	
+	<!-- reply테이블의 가장큰  class 값을 가져온다 -->
+	<select id="reply_max_no"  resultType="int">
+		select MAX(reply_class) from recruit_reply
+	</select>
+	
+	<!-- 댓글 작성 -->
+	<insert id="reply_wrtie">
+		insert into recruit_reply 
+		values(reply_no_seq.nextval, #{mem_id}, #{reply_content}, #{recruit_no}, #{reply_class}, 0,0, sysdate)
+	</insert>
 	
 	<!-- 블랙리스트 목록 -->
 	<select id="get_black" resultType="black_list">

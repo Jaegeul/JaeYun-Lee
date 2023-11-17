@@ -3,6 +3,10 @@
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
 
 <configuration>
+	<settings>
+        <setting name="jdbcTypeForNull" value="NULL" />
+    </settings>
+
 	<typeAliases>		
 <!-- 	<typeAlias type="com.gongcha.dto.MemberDTO" alias="mem" /> BbsVO 빈클래스 객체 별칭명 bbs 생성 -->
 		<typeAlias type="com.gongcha.dto.MemberDTO" alias="member" />
@@ -12,7 +16,12 @@
 		<typeAlias type="com.gongcha.dto.BoardDTO" alias="board" />
 		<typeAlias type="com.gongcha.dto.CashDTO" alias="cash" />
 		<typeAlias type="com.gongcha.dto.Social_historyDTO" alias="history" />
+		<typeAlias type="com.gongcha.dto.ReplyDTO" alias="reply" />
 		<typeAlias type="com.gongcha.dto.Black_listDTO" alias="black_list" />
 	</typeAliases>
 	
 </configuration>
+
+
+
+

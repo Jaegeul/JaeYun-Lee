@@ -1,7 +1,7 @@
 package com.gongcha.controller;
 
-import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +21,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.gongcha.dao.ReplyDAO;
 import com.gongcha.dto.Black_listDTO;
 import com.gongcha.dto.BoardDTO;
+import com.gongcha.dto.ReplyDTO;
 import com.gongcha.dto.Stadium_matchDTO;
 import com.gongcha.service.BoardService;
 import com.gongcha.service.ReplyService;
@@ -169,24 +171,33 @@ public class BoardController {
 			out.println("location='/member/login';");
 			out.println("</script>");
 		} else {
-			o = this.boardService.getCont(recruit_no);
+			List<BoardDTO> getNo = boardService.findNo(recruit_no);
 
-			String cont = o.getRecruit_content().replace("\n", "<br/>");
+			if (getNo.isEmpty()) {
+				out.println("<script>");
+				out.println("alert('존재하지 않은 게시글 입니다!');");
+				out.println("history.back();");
+				out.println("</script>");
+			} else {
+				o = this.boardService.getCont(recruit_no);
 
-			o.setMem_id(id);
+				String cont = o.getRecruit_content().replace("\n", "<br/>");
 
-			BoardDTO e = boardService.getId(o);
+				o.setMem_id(id);
 
-			ModelAndView ml = new ModelAndView();
+				BoardDTO e = boardService.getId(o);
 
-			ml.addObject("cont", cont);
-			ml.addObject("o", o);
+				ModelAndView ml = new ModelAndView();
 
-			ml.addObject("t", e);
+				ml.addObject("cont", cont);
+				ml.addObject("o", o);
 
-			ml.setViewName("/recruit/recruit_detail");
+				ml.addObject("t", e);
 
-			return ml;
+				ml.setViewName("/recruit/recruit_detail");
+
+				return ml;
+			}
 		}
 		return null;
 	}
@@ -287,6 +298,58 @@ public class BoardController {
 		return "redirect:/recruit";
 	}
 
+	// 댓글 리스트
+	@ResponseBody
+	@RequestMapping(value = "/recruit/reply_list", produces = "application/text; charset=UTF-8")
+	public String reply_list(@RequestParam("recruit_no") int recruit_no, HttpServletResponse response,
+			HttpSession session) throws Exception {
+		response.setContentType("text/html;charset=UTF-8");
+
+		Gson gson = new Gson();
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		List<ReplyDTO> reply_list = new ArrayList<ReplyDTO>();
+		
+		ReplyDTO dto = new ReplyDTO();
+
+		dto.setRecruit_no(recruit_no); // 가져올 댓글 리스트의 게시물번호를 세팅
+
+		reply_list = replyService.replyList(dto);
+		
+		map.put("list", reply_list);
+		
+		String json = gson.toJson(map);
+
+		return json;
+
+	}
+
+	//댓글 작성
+	@ResponseBody
+	@RequestMapping("/recruit/recruit_reply_ok")
+	public String recruit_reply_ok(HttpServletResponse response, ReplyDTO re, HttpSession session, 
+			String reply_content, @RequestParam("recruit_no") int recruit_no) 
+			throws Exception {
+		response.setContentType("text/html;charset=UTF-8");
+
+		String id = (String) session.getAttribute("id");
+		
+		if(session.getAttribute("id") == null) {
+			return "fail";
+		}else {
+			System.out.println("로그인 검증");
+
+			re.setReply_content(reply_content);
+			re.setMem_id(id);
+			re.setRecruit_no(recruit_no);
+			System.out.println(re);
+			replyService.replyRegi(re);
+			
+			return "Success";
+		}
+		
+	}
+
 	@RequestMapping("/side_menu/company_introduction")
 	public String company_introduction() {
 		return "/side_menu/company_introduction";
@@ -358,8 +421,8 @@ public class BoardController {
 
 	// 블랙 리스트 게시글 보기
 	@RequestMapping("/side_menu/black_list_content")
-	public ModelAndView black_list_content(@RequestParam("no") int no, Black_listDTO o,
-			HttpServletResponse response, HttpSession session) throws Exception {
+	public ModelAndView black_list_content(@RequestParam("no") int no, Black_listDTO o, HttpServletResponse response,
+			HttpSession session) throws Exception {
 
 		response.setContentType("text/html;charset=UTF-8");
 		PrintWriter out = response.getWriter();

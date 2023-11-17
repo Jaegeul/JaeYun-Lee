@@ -48,5 +48,7 @@ public interface BoardService {
 	void edit(Black_listDTO j);
 
 	void delBlack_list(Black_listDTO de);
+
+	List<BoardDTO> findNo(int recruit_no);
 	
 }

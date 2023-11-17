@@ -117,6 +117,11 @@ public class BoardServiceImpl implements BoardService {
 		boardDao.delBlack_list(de);
 	}
 
+	@Override
+	public List<BoardDTO> findNo(int recruit_no) {
+		return boardDao.findNo(recruit_no);
+	}
+
 }
 
 

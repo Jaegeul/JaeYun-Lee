@@ -5,7 +5,7 @@
 		<c:forEach var="t" items="${list}">			
 
 				<li class="item"><a
-					style="outline: none; color: #222836; text-decoration: none; cursor: pointer;" role="button" href="recruit_detail?recruit_no=${t.recruit_no }">
+					style="outline: none; color: #222836; text-decoration: none; cursor: pointer;" role="button" href="recruit/recruit_detail?recruit_no=${t.recruit_no }">
 						<div class="time">
 							<p>${fn:substring(t.match_date,0,10)}</p>
 						</div>

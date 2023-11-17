@@ -117,5 +117,10 @@ public class BoardDAOImpl implements BoardDAO {
 		sqlSession.delete("del_black", de);
 	}
 
+	@Override
+	public List<BoardDTO> findNo(int recruit_no) {
+		return sqlSession.selectList("find_no", recruit_no);
+	}
+
 
 }

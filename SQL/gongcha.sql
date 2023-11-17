@@ -24,16 +24,30 @@ select * from social_match;
 select * from stadium;
 select * from stadium_match;
 select * from recruit;
+select * from recruit_reply;
+SELECT *
+  FROM all_sequences;
 create table recruit_reply(
     reply_no number(38) primary key,
-    mem_id varchar2(50) not null,
+    mem_id varchar2(100) not null,
     reply_content varchar2(2000) not null,
     recruit_no number(38),
-    reply_class number(38),
-    reply_order number(38),
-    reply_group number(38),
-    regi_date date
+    reply_class number(38), --댓글이 속한 댓글 번호  grp
+    reply_order number(38), --같은 댓글 중에 순서   grps
+    reply_group number(38), --댓글의 깊이 모댓글이면 0, 답글이면 1 grpl
+    regi_date date,
+    constraint recruit_reply_mem_id_fk foreign key(mem_id) references member(mem_id)
+    on delete cascade,
+    constraint recruit_reply_recruit_no_fk foreign key(recruit_no) references recruit(recruit_no)
+    on delete cascade
 );
+
+select * from recruit_reply;
+
+select MAX(reply_class) from recruit_reply;
+
+insert into recruit_reply values(reply_no_seq.nextval, 'hong', 'test', 37, 0, 1, 1,sysdate);
+insert into recruit_reply values(reply_no_seq.nextval, 'gongcha', 'haha', 37, 1, 1, 0,sysdate);
 
 insert into recruit_reply values(reply_no_seq.nextval, 'hong', 'test', 23, 0, 1, 1,sysdate);
 insert into recruit_reply values(reply_no_seq.nextval, 'hong', 'test2', 23, 0, 2, 2,sysdate);
@@ -653,7 +667,7 @@ commit;
 select * from cash;
 
 
-
+insert into Stadium_match values(Stadium_Match_No_seq.nextval,'2023-06-20 14:00',0,'stadium1','gongcha',20000, '14:00', '16:00');
 
 
 insert into Stadium_match values(Stadium_Match_No_seq.nextval,'2022-11-09 12:00',1,'stadium1',Null,10000, '12:00', '14:00');
@@ -875,8 +889,8 @@ commit;
 
 alter table social_match add manager varchar2(50);
 
-insert into social_match values(match_no_seq.nextval,20000,'2022-11-11 10:00','6vs6','2파전'
-,'stadium1',1,'ONLY풋살화',12,'2시간','모든수준',0, '홍길동', '10:00', );
+insert into social_match values(match_no_seq.nextval,20000,'2023-06-14 10:00','6vs6','2파전'
+,'stadium1',1,'ONLY풋살화',12,'2시간','모든수준',0, '홍길동', '10:00');
 
 insert into social_match values(match_no_seq.nextval,30000,'2022-11-11 11:00','7vs7','2파전'
 ,'stadium3',1,'ONLY풋살화',14,'2시간 ~ 2시간 30분','초보',7, '홍길동');

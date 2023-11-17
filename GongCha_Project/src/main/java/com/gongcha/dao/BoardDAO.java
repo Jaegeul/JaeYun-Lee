@@ -49,5 +49,7 @@ public interface BoardDAO {
 
 	void delBlack_list(Black_listDTO de);
 
+	List<BoardDTO> findNo(int recruit_no);
+
 
 }
