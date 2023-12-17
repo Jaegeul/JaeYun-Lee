@@ -307,36 +307,35 @@ public class BoardController {
 
 		Gson gson = new Gson();
 		Map<String, Object> map = new HashMap<String, Object>();
-		
+
 		List<ReplyDTO> reply_list = new ArrayList<ReplyDTO>();
-		
+
 		ReplyDTO dto = new ReplyDTO();
 
 		dto.setRecruit_no(recruit_no); // 가져올 댓글 리스트의 게시물번호를 세팅
 
 		reply_list = replyService.replyList(dto);
-		
+
 		map.put("list", reply_list);
-		
+
 		String json = gson.toJson(map);
 
 		return json;
 
 	}
 
-	//댓글 작성
+	// 댓글 작성
 	@ResponseBody
 	@RequestMapping("/recruit/recruit_reply_ok")
-	public String recruit_reply_ok(HttpServletResponse response, ReplyDTO re, HttpSession session, 
-			String reply_content, @RequestParam("recruit_no") int recruit_no) 
-			throws Exception {
+	public String recruit_reply_ok(HttpServletResponse response, ReplyDTO re, HttpSession session, String reply_content,
+			@RequestParam("recruit_no") int recruit_no) throws Exception {
 		response.setContentType("text/html;charset=UTF-8");
 
 		String id = (String) session.getAttribute("id");
-		
-		if(session.getAttribute("id") == null) {
+
+		if (session.getAttribute("id") == null) {
 			return "fail";
-		}else {
+		} else {
 			System.out.println("로그인 검증");
 
 			re.setReply_content(reply_content);
@@ -344,10 +343,61 @@ public class BoardController {
 			re.setRecruit_no(recruit_no);
 			System.out.println(re);
 			replyService.replyRegi(re);
-			
+
 			return "Success";
 		}
-		
+
+	}
+
+	// 댓글 수정
+	@ResponseBody
+	@RequestMapping("/recruit/recruit_reply_edit_ok")
+	public String recruit_edit_ok(HttpServletResponse response, ReplyDTO ed, HttpSession session, String reply_content,
+			@RequestParam("recruit_no") int recruit_no, @RequestParam("reply_no") int reply_no) throws Exception {
+		response.setContentType("text/html;charset=UTF-8");
+
+		String id = (String) session.getAttribute("id");
+
+		if (session.getAttribute("id") == null) {
+			return "fail";
+		} else {
+			System.out.println("로그인 검증");
+
+			ed.setReply_content(reply_content);
+			ed.setRecruit_no(recruit_no);
+			ed.setMem_id(id);
+			ed.setReply_no(reply_no);
+			System.out.println(ed);
+			replyService.replyEdit(ed);
+
+			return "Success";
+		}
+
+	}
+
+	// 댓글 삭제
+	@ResponseBody
+	@RequestMapping("/recruit/recruit_reply_del_ok")
+	public String recruit_del_ok(HttpServletResponse response, ReplyDTO del, HttpSession session,
+			@RequestParam("recruit_no") int recruit_no, @RequestParam("reply_no") int reply_no) throws Exception {
+		response.setContentType("text/html;charset=UTF-8");
+
+		String id = (String) session.getAttribute("id");
+
+		if (session.getAttribute("id") == null) {
+			return "fail";
+		} else {
+			System.out.println("로그인 검증");
+
+			del.setRecruit_no(recruit_no);
+			del.setMem_id(id);
+			del.setReply_no(reply_no);
+			
+			replyService.replyDel(del);
+
+			return "Success";
+		}
+
 	}
 
 	@RequestMapping("/side_menu/company_introduction")

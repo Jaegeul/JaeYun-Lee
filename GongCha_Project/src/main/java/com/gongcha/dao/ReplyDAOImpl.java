@@ -52,4 +52,14 @@ public class ReplyDAOImpl implements ReplyDAO {
 //		}
 		
 	}
+
+	@Override
+	public void replyEdit(ReplyDTO ed) {
+		sqlSession.update("reply_edit", ed);
+	}
+
+	@Override
+	public void replyDel(ReplyDTO del) {
+		sqlSession.delete("reply_del", del);
+	}
 }

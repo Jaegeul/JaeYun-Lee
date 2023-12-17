@@ -24,4 +24,14 @@ public class ReplyServiceImpl implements ReplyService {
 		replyDao.replyRegi(re);
 	}
 
+	@Override
+	public void replyEdit(ReplyDTO ed) {
+		replyDao.replyEdit(ed);
+	}
+
+	@Override
+	public void replyDel(ReplyDTO del) {
+		replyDao.replyDel(del);
+	}	
+
 }

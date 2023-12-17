@@ -20,13 +20,14 @@
 		    console.log('Something went wrong', err);
 		})
 		}
-	
+
 	function getList(){
 		const recruit_no = $('#recruit_no').val();
 		
 		$.ajax({
 			url : "reply_list",
 			type : "get",
+			async:false,
 			data : {
 				"recruit_no" :recruit_no
 			},
@@ -52,27 +53,68 @@
 			             let reply_content = data.list[i].reply_content;
 			             let regi_date = data.list[i].regi_date;
 			             
-			             html += "<li class='reply_item'>";
+			             html += "<li class='reply_item' no='"+reply_no+"'>";
 			             html += "<div class='reply_area'>";
+			          	 if(mem_id == "${id}"){
+			          		 html += "<div class='about_dots' no='"+reply_no+"'>";
+			          		 html += "</div>"; 	
+			          	 }
+
 			             html += "<div class='reply_box'>";
 			             html += "<div class='reply_nick'>";
 			             html += "<div class='reply_nick_info'>";
-			             html += "<div class='reply_nickname'>"+mem_id+"</div></div></div>";
+			             html += "<div class='reply_nickname' reply_no='"+reply_no+"'>"+mem_id+"</div></div></div>";
 			             html += "<div class='reply_text_box'>";
 			             html += "<p class='reply_text_view'>";
-			             html += "<span class='text_reply'>"+reply_content+"</span></p></div>";
+			             html += "<span class='text_reply' content_no='"+reply_no+"'>"+reply_content+"</span></p></div>";
 			             html += "<div class='reply_info_box'>";
 			             html += "<span class='reply_info_date'>"+regi_date+"</span>";
 			             html += "<a href='#' class='reply_info_button'>"+'답글쓰기'+ "</a></div></div></div></li>";
 			             
-			             
-			         
 					}
-				}
-				$("#reply_list").html(html);
+					$("#reply_list").html(html);			
+					
+					$('.about_dots').click(function(){				
+						var reply_no = $(this).attr('no');
+						
+						$('.about_dots').children().remove();					
+						
+						$("div[no='"+reply_no+"']").append("<div class='reply_tool'><ul class='layer_list'><li class='layer_item'>"
+					     +"<a href='javascript:' id='reply_edit' no='"+reply_no+"' class='layer_button'>수정</a></li>"
+					     +"<li class='layer_item'><a href='javascript:' id='reply_del' class='layer_button' no='"+reply_no+"'>삭제</a></li>"
+					     +"</ul></div>");	
+	          		});
+
+				}			
 			}
 		})
 	}
+	$('html').click(function(e){					
+		if($(e.target).parents('.reply_tool').length < 1 && $(e.target).hasClass('about_dots') == false){
+	    	
+	    	$('.about_dots').children().remove();
+	    }
+	});
+	
+	$(document).on("click", "#reply_edit", function(){
+		getList();
+		var reply_no = $(this).attr('no');
+		var content = $("span[class=text_reply][content_no='"+reply_no+"']").text();
+		var id = $("div[class=reply_nickname][reply_no='"+reply_no+"']").text();
+		
+		$("li[class=reply_item][no='"+reply_no+"']").children().remove();
+		
+	    $("li[class=reply_item][no='"+reply_no+"']").append("<div class='commentWriter'>"
+	    	+"<div class='comment_inbox'><em class='name'>"+id+"</em>"
+	    	+"<textarea class='inbox_text' rows='1'"
+	    	+"style='overflow: hidden; overflow-wrap: break-word; height: 20px;'>"+content+"</textarea>"
+	    	+"<div class='comment_regi'><button id='cancel' class='c_regi'>취소</button>"
+	    	+"<button id='c_edit' class='c_regi' no='"+reply_no+"'>수정</button></div></div></div>");
+	});
+	
+	$(document).on("click", "#cancel", function(){
+		getList();
+	});
 	
 	$(document).ready(function(){
 		getList();
@@ -81,13 +123,13 @@
 	$(document).on("click", "#c_regi", function(){
 		//Json으로 전달할 파라미터 변수선언
 		const recruit_no = $('#recruit_no').val();
-		const reply_content = $('#reply_content').val();
+		const reply_content = $('.inbox_text').val();
 		
 		console.log(reply_content);
 	
 		if(reply_content == '') {
 			alert('내용을 입력하세요');
-			$("#reply_content").val('').focus();
+			
 		}else{
 		
 		$.ajax({
@@ -102,11 +144,11 @@
 
 				if(data === 'Success') {
 					console.log('댓글 등록 완료');
-   					$('#reply_content').val('');
+   					$('.inbox_text').val('');
 				} else {
 					console.log('댓글 등록 실패');
-					alert("다시 로그인해 주세요");
-					location='/member/login';
+					alert("댓글 등록이 실패하였습니다. /n다시 등록해 주세요.");
+					$('.inbox_text').val('');
 				}
 				getList();
 			},
@@ -117,7 +159,77 @@
 		}
 	});
 	
+	$(document).on("click", "#c_edit", function(){
+		//Json으로 전달할 파라미터 변수선언
+		var recruit_no = $('#recruit_no').val();
+		var reply_content = $('.inbox_text').val();
+		var reply_no = $(this).attr('no'); 
 	
+		if(reply_content == '') {
+			alert('내용을 입력하세요');
+			
+		}else{
+		
+		$.ajax({
+			type:'post',
+			url:'recruit_reply_edit_ok',
+			data: 
+				{
+					"recruit_no":recruit_no,
+					"reply_content":reply_content,
+					"reply_no":reply_no
+				},
+			success:function(data){
+
+				if(data === 'Success') {
+					console.log('댓글 수정 완료');
+   					$('.inbox_text').val('');
+				} else {
+					console.log('댓글 수정 실패');
+					alert("댓글 수정이 실패하였습니다. /n다시 등록해 주세요.");
+					$('.inbox_text').val('');
+				}
+				getList();
+			},
+			error:function(){
+				alert('통신실패');
+			}
+		});// 댓글 비동기 끝
+		}
+	});
+	
+	$(document).on("click", "#reply_del", function(){
+		//Json으로 전달할 파라미터 변수선언
+		var recruit_no = $('#recruit_no').val();
+		var reply_no = $(this).attr('no'); 
+			
+		var del_text = confirm('댓글을 삭제하시겠습니까?');
+		
+		if(del_text == true){
+			$.ajax({
+				type:'post',
+				url:'recruit_reply_del_ok',
+				data: 
+					{
+						"recruit_no":recruit_no,
+						"reply_no":reply_no
+					},
+					success:function(data){
+
+					if(data === 'Success') {
+						console.log('댓글 삭제 완료');
+					} else {
+						console.log('댓글 삭제 실패');
+						alert("댓글 삭제가 실패하였습니다.");
+					}
+					getList();
+				},
+				error:function(){
+					alert('통신실패');
+				}
+			});// 댓글 비동기 끝
+		}
+	});
 </script>
 <link rel="stylesheet" type="text/css"
 	href="/resources/css/recruit_detail.css" />
@@ -170,29 +282,39 @@
 							<div class="title" id="title"></div>
 						</div>
 						<ul class="reply_list" id="reply_list">
-							<!-- 댓글 리스트 -->
-							<!-- 						<li class="reply_item"> -->
-							<!-- 							<div class="reply_area"> -->
-							<!-- 								<div class="reply_box"> -->
-							<!-- 									<div class="reply_nick"> -->
-							<!-- 										<div class="reply_nick_info"> -->
-							<!-- 											<div class="reply_nickname"> -->
-							<!-- 												재그리입니다만 -->
-							<!-- 											</div> -->
-							<!-- 										</div> -->
-							<!-- 									</div> -->
-							<!-- 									<div class="reply_text_box"> -->
-							<!-- 										<p class="reply_text_view"> -->
-							<!-- 											<span class="text_reply">아아아 테스트요오오오오</span> -->
-							<!-- 										</p> -->
-							<!-- 									</div> -->
-							<!-- 									<div class="reply_info_box"> -->
-							<!-- 										<span class="reply_info_date">2023.00.00 00:00</span> -->
-							<!-- 										<a href="#" class="reply_info_button"> 답글쓰기 </a> -->
-							<!-- 									</div> -->
-							<!-- 								</div> -->
-							<!-- 							</div> -->
-							<!-- 						</li> -->
+							<!-- 							댓글 리스트 -->
+<!-- 							<li class="reply_item"> -->
+<!-- 								<div class="reply_area"> -->
+<!-- 									<div class="about_dots"> -->
+<!-- 										<div class="reply_tool"> -->
+<!-- 											<ul class="layer_list"> -->
+<!-- 												<li class="layer_item"> -->
+<!-- 													<a href="#" class="layer_button">수정</a> -->
+<!-- 												</li> -->
+<!-- 												<li class="layer_item"> -->
+<!-- 													<a href="#" class="layer_button">삭제</a> -->
+<!-- 												</li> -->
+<!-- 											</ul> -->
+<!-- 										</div> -->
+<!-- 									</div> -->
+<!-- 									<div class="reply_box"> -->
+<!-- 										<div class="reply_nick"> -->
+<!-- 											<div class="reply_nick_info"> -->
+<!-- 												<div class="reply_nickname">재그리입니다만</div> -->
+<!-- 											</div> -->
+<!-- 										</div> -->
+<!-- 										<div class="reply_text_box"> -->
+<!-- 											<p class="reply_text_view"> -->
+<!-- 												<span class="text_reply">아아아 테스트요오오오오</span> -->
+<!-- 											</p> -->
+<!-- 										</div> -->
+<!-- 										<div class="reply_info_box"> -->
+<!-- 											<span class="reply_info_date">2023.00.00 00:00</span> <a -->
+<!-- 												href="#" class="reply_info_button"> 답글쓰기 </a> -->
+<!-- 										</div> -->
+<!-- 									</div> -->
+<!-- 								</div> -->
+<!-- 							</li> -->
 
 							<!-- 대댓글 박스 -->
 							<!-- 						<li class="reply_item"> -->
@@ -236,21 +358,18 @@
 
 						</ul>
 					</div>
-					<!--<form action="/recruit/recruit_reply_ok" method="post"> -->
 					<div class="commentWriter">
 						<div class="comment_inbox">
 							<em class="name">${o.mem_id}</em>
-							<textarea class="inbox_text" id="reply_content"
+							<textarea class="inbox_text"
 								placeholder="댓글을 남겨보세요" rows="1"
-								oninput='this.style.height = ""; this.style.height = this.scrollHeight + "px"'
-								style="overflow: hidden; overflow-wrap: break-word; height: 17px;"></textarea>
+								style="overflow: hidden; overflow-wrap: break-word; height: 20px;"></textarea>
 
 							<div class="comment_regi">
 								<button id="c_regi" class="c_regi">등록</button>
 							</div>
 						</div>
 					</div>
-					<!--</form> -->
 				</div>
 			</div>
 		</div>

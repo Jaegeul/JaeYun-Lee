@@ -10,4 +10,8 @@ public interface ReplyDAO {
 
 	void replyRegi(ReplyDTO re);
 
+	void replyEdit(ReplyDTO ed);
+
+	void replyDel(ReplyDTO del);
+
 }

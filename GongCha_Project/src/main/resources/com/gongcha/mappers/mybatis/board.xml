@@ -109,6 +109,16 @@
 		values(reply_no_seq.nextval, #{mem_id}, #{reply_content}, #{recruit_no}, #{reply_class}, 0,0, sysdate)
 	</insert>
 	
+	<!-- 댓글 수정 -->
+	<update id="reply_edit">
+		update recruit_reply set reply_content=#{reply_content}
+		where recruit_no=#{recruit_no} and reply_no=#{reply_no} and mem_id=#{mem_id}
+	</update>
+	
+	<delete id="reply_del">
+		delete from recruit_reply where recruit_no=#{recruit_no} and mem_id=#{mem_id} and reply_no=#{reply_no}
+	</delete>
+	
 	<!-- 블랙리스트 목록 -->
 	<select id="get_black" resultType="black_list">
 		select * from black_list order by black_list_no desc

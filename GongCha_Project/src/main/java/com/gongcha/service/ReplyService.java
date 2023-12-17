@@ -9,4 +9,8 @@ public interface ReplyService {
 	List<ReplyDTO> replyList(ReplyDTO dto);
 
 	void replyRegi(ReplyDTO re);
+
+	void replyEdit(ReplyDTO ed);
+
+	void replyDel(ReplyDTO del);
 }
